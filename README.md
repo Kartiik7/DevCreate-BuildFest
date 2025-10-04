@@ -8,7 +8,7 @@ Prannoy Chandola - Frontend Developer
 Vriddhi Kakkar - DB and Content Manager
  
 
-**Problem Statement:**Heritage lovers struggle to find consolidated, reliable details on monuments, their history, and nearby services — everything is scattered across multiple apps and websites. Planning an itinerary combining multiple sites is time-consuming and complex, with no intelligent tools to optimize routes or discover hidden gems. The gap is clear: there's no unified, intelligent platform designed specifically for cultural tourism in India.
+**Problem Statement:** Heritage lovers struggle to find consolidated, reliable details on monuments, their history, and nearby services — everything is scattered across multiple apps and websites. Planning an itinerary combining multiple sites is time-consuming and complex, with no intelligent tools to optimize routes or discover hidden gems. The gap is clear: there's no unified, intelligent platform designed specifically for cultural tourism in India.
 
 **Tech Stack:** React.js, Node.js, Express.js, CSS, natural.js, MongoDB
 
