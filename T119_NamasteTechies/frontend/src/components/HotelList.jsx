@@ -4,48 +4,81 @@ import HotelCard from './HotelCard';
 
 export default function HotelList({ lat, lon, city }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [hotels, setHotels] = useState([]);
-  const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
+  const [dates, setDates] = useState({
+    checkIn: "",
+    checkOut: ""
+  });
   const [adults, setAdults] = useState(2);
-  const [error, setError] = useState('');
 
-  async function search() {
-    setError('');
+  const search = async () => {
+    if (!dates.checkIn || !dates.checkOut) {
+      setError('Please select check-in and check-out dates');
+      return;
+    }
+    
     setLoading(true);
+    setError(null);
+    setHotels([]);
+    
     try {
       const params = new URLSearchParams({
-        lat, lon, city, checkInDate: dates.checkIn, checkOutDate: dates.checkOut, adults
+        lat, 
+        lon, 
+        city: city || "", 
+        checkInDate: dates.checkIn, 
+        checkOutDate: dates.checkOut, 
+        adults
       });
       const res = await fetch(`/api/hotels/search?${params.toString()}`);
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("API did not return JSON");
+      }
+      
       const json = await res.json();
       setHotels(json.results || []);
-    } catch { setError('Failed to load hotels. Please try again.'); }
-    setLoading(false);
-  }
+      
+      if (!json.results || json.results.length === 0) {
+        setError('No hotels found for the selected dates');
+      }
+    } catch (err) {
+      console.error("Hotel search error:", err);
+      setError('Failed to load hotels. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="card">
       <h3>🏨 Hotels & Accommodation</h3>
-      <div className="hotel-search-form">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div className="hotel-search-form" style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '140px' }}>
           <label style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>Check-in</label>
           <input 
             type="date" 
             value={dates.checkIn} 
             onChange={e => setDates({...dates, checkIn: e.target.value})}
-            placeholder="Check-in date" 
+            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '140px' }}>
           <label style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>Check-out</label>
           <input 
             type="date" 
             value={dates.checkOut} 
             onChange={e => setDates({...dates, checkOut: e.target.value})}
-            placeholder="Check-out date" 
+            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '80px' }}>
           <label style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>Adults</label>
           <input 
             type="number" 
@@ -53,7 +86,7 @@ export default function HotelList({ lat, lon, city }) {
             max="9" 
             value={adults} 
             onChange={e => setAdults(e.target.value)}
-            placeholder="Adults" 
+            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
           />
         </div>
         <button 
@@ -62,7 +95,13 @@ export default function HotelList({ lat, lon, city }) {
           disabled={!dates.checkIn || !dates.checkOut || loading}
           style={{ 
             alignSelf: 'flex-end',
-            opacity: (!dates.checkIn || !dates.checkOut || loading) ? 0.6 : 1 
+            opacity: (!dates.checkIn || !dates.checkOut || loading) ? 0.6 : 1,
+            padding: '8px 16px',
+            borderRadius: '4px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer'
           }}
         >
           {loading ? 'Searching...' : 'Search Hotels'}

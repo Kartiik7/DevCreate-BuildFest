@@ -5,15 +5,14 @@ import { useAuth } from "../hooks/useAuth";
 import heritageSites from '../assets/heritageSites.json';
 import { fetchHeritageSiteById } from "../utils/api";
 import "../app.css";
-import Quiz from './Quiz';
-// import { useState, useEffect } from 'react';
-import HotelsList from './HotelList';
-import ThingsToDo from './ThingsToDo';
+import Quiz from "./Quiz";
+import HotelList from "./HotelList";
+import ThingsToDo from "./ThingsToDo";
 
 export default function SiteDetail() {
   const { siteId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
 
   const [site, setSite] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +74,7 @@ export default function SiteDetail() {
         if (!res.ok) return;
         const data = await res.json();
         if (mounted && data?.name) setUserName(data.name);
-      } catch (e) {
+      } catch {
         // ignore - keep Guest
       }
     }
@@ -274,7 +273,7 @@ export default function SiteDetail() {
 
         {/* Hotels and Activities */}
         <div style={{ marginTop: 24 }}>
-          <HotelsList lat={lat} lon={lon} city={site.cityCode || site.city} />
+          <HotelList lat={lat} lon={lon} city={site.cityCode || site.city} />
         </div>
         <div style={{ marginTop: 16 }}>
           <ThingsToDo lat={lat} lon={lon} />

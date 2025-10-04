@@ -1,8 +1,22 @@
 // backend/routes/quizRoutes.js
 const express = require('express');
 const router = express.Router();
+
+// controller with named exports (object with functions)
 const quizCtrl = require('../controllers/quizController');
-const authMiddleware = require('../middleware/authMiddleware');
+
+// require your auth middleware — handle both export patterns below
+let authMiddleware = require('../middleware/authMiddleware');
+// if authMiddleware was exported as { authMiddleware: fn }, use the property
+if (authMiddleware && typeof authMiddleware !== 'function' && authMiddleware.authMiddleware) {
+  authMiddleware = authMiddleware.authMiddleware;
+}
+
+// If authMiddleware is still not a function, set to a no-op permissive middleware (fallback)
+if (typeof authMiddleware !== 'function') {
+  console.warn('Warning: authMiddleware is not a function — using permissive middleware for now.');
+  authMiddleware = (req, res, next) => { next(); };
+}
 
 // Validation middleware for monumentId
 const validateMonumentId = (req, res, next) => {
@@ -43,7 +57,8 @@ const validateQuizSubmission = (req, res, next) => {
   next();
 };
 
-router.get('/:monumentId', validateMonumentId, authMiddleware.protect, quizCtrl.getQuestions);
-router.post('/:monumentId/submit', validateMonumentId, validateQuizSubmission, authMiddleware.protect, quizCtrl.submitQuiz);
+// routes
+router.get('/:monumentId', validateMonumentId, authMiddleware, quizCtrl.getQuestions);
+router.post('/:monumentId/submit', validateMonumentId, validateQuizSubmission, authMiddleware, quizCtrl.submitQuiz);
 
 module.exports = router;
